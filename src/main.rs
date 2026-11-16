@@ -13,7 +13,13 @@ async fn main() {
         .route("/hello/:name", get(hello))
         .route("/echo", post(echo));
 
-    let listener = TcpListener::bind("0.0.0.0:5000").await.unwrap();
+    // Порт передаёт платформа в переменной PORT; без неё — 5000
+    let port: u16 = std::env::var("PORT")
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(5000);
+
+    let listener = TcpListener::bind(("0.0.0.0", port)).await.unwrap();
     println!("listening on http://{}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
